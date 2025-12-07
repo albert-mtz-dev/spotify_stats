@@ -3,6 +3,7 @@ import type {
   SpotifyArtist,
   SpotifyTrack,
   SpotifyRecentlyPlayed,
+  SpotifyAudioFeatures,
   TimeRange,
   ArtistSummary,
   TrackSummary,
@@ -72,6 +73,8 @@ export async function getTopTracks(
     albumId: track.album.id,
     albumSpotifyUrl: track.album.external_urls.spotify,
     durationMs: track.duration_ms,
+    popularity: track.popularity,
+    releaseDate: track.album.release_date,
     spotifyUrl: track.external_urls.spotify,
   }));
 }
@@ -95,4 +98,31 @@ export async function getCurrentUser(accessToken: string) {
     email: string;
     images: { url: string }[];
   }>("/me", accessToken);
+}
+
+// Get audio features for multiple tracks (max 100 per request)
+export async function getAudioFeatures(
+  accessToken: string,
+  trackIds: string[]
+): Promise<SpotifyAudioFeatures[]> {
+  if (trackIds.length === 0) return [];
+
+  // Spotify API allows max 100 IDs per request
+  const chunks: string[][] = [];
+  for (let i = 0; i < trackIds.length; i += 100) {
+    chunks.push(trackIds.slice(i, i + 100));
+  }
+
+  const results: SpotifyAudioFeatures[] = [];
+
+  for (const chunk of chunks) {
+    const data = await spotifyFetch<{ audio_features: (SpotifyAudioFeatures | null)[] }>(
+      `/audio-features?ids=${chunk.join(",")}`,
+      accessToken
+    );
+    // Filter out null values (tracks without audio features)
+    results.push(...data.audio_features.filter((f): f is SpotifyAudioFeatures => f !== null));
+  }
+
+  return results;
 }

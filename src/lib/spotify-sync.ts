@@ -30,8 +30,10 @@ interface SpotifyTrack {
     name: string;
     images: { url: string }[];
     external_urls: { spotify: string };
+    release_date: string;
   };
   duration_ms: number;
+  popularity: number;
   external_urls: { spotify: string };
 }
 
@@ -191,6 +193,8 @@ async function fetchTopTracks(
     albumId: track.album.id,
     albumSpotifyUrl: track.album.external_urls.spotify,
     durationMs: track.duration_ms,
+    popularity: track.popularity,
+    releaseDate: track.album.release_date,
     spotifyUrl: track.external_urls.spotify,
   }));
 }

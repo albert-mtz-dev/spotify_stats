@@ -5,6 +5,7 @@ import {
   getTopArtists,
   getTopTracks,
   getRecentlyPlayed,
+  getAudioFeatures,
 } from "@/lib/spotify";
 import {
   aggregateGenresFromArtists,
@@ -12,6 +13,7 @@ import {
   calculateTotalListeningTime,
   assignBadges,
   extractTopAlbumsFromTracks,
+  computeExtendedStats,
 } from "@/lib/analytics";
 import { prisma } from "@/lib/prisma";
 import { DashboardContent } from "@/components/dashboard/DashboardContent";
@@ -111,6 +113,17 @@ export default async function DashboardPage() {
       getRecentlyPlayed(session.accessToken, 50),
     ]);
 
+    // Fetch audio features for medium-term tracks (most representative)
+    // This may fail with 403 if the Spotify app doesn't have extended quota mode
+    const trackIds = mediumTermTracks.map((t) => t.id);
+    let audioFeatures: Awaited<ReturnType<typeof getAudioFeatures>> = [];
+    try {
+      audioFeatures = await getAudioFeatures(session.accessToken, trackIds);
+    } catch (error) {
+      console.warn("Could not fetch audio features (may require extended quota mode):", error);
+      audioFeatures = [];
+    }
+
     // Extract top albums from top tracks
     const shortTermAlbums = extractTopAlbumsFromTracks(shortTermTracks);
     const mediumTermAlbums = extractTopAlbumsFromTracks(mediumTermTracks);
@@ -135,6 +148,17 @@ export default async function DashboardPage() {
     const uniqueArtistIds = new Set(mediumTermArtists.map((a) => a.id));
     const uniqueTrackIds = new Set(mediumTermTracks.map((t) => t.id));
 
+    // Compute extended stats
+    const extendedStats = computeExtendedStats({
+      shortTermTracks,
+      mediumTermTracks,
+      shortTermArtists,
+      mediumTermArtists,
+      longTermArtists,
+      audioFeatures,
+      listeningPatterns,
+    });
+
     // Assign badges
     const badges = assignBadges({
       topArtists: mediumTermArtists,
@@ -156,6 +180,7 @@ export default async function DashboardPage() {
         uniqueTracks: uniqueTrackIds.size,
         topGenre: genres[0]?.genre || null,
       },
+      extendedStats,
       topArtists: {
         shortTerm: shortTermArtists,
         mediumTerm: mediumTermArtists,

@@ -17,6 +17,7 @@ export interface SpotifyTrack {
     name: string;
     images: { url: string; width: number; height: number }[];
     external_urls: { spotify: string };
+    release_date: string;
   };
   duration_ms: number;
   popularity: number;
@@ -26,6 +27,46 @@ export interface SpotifyTrack {
 export interface SpotifyRecentlyPlayed {
   track: SpotifyTrack;
   played_at: string;
+}
+
+// Audio Features from Spotify API
+export interface SpotifyAudioFeatures {
+  id: string;
+  danceability: number; // 0-1
+  energy: number; // 0-1
+  valence: number; // 0-1 (happiness/positivity)
+  tempo: number; // BPM
+  acousticness: number; // 0-1
+  instrumentalness: number; // 0-1
+  liveness: number; // 0-1
+  speechiness: number; // 0-1
+  loudness: number; // dB
+  mode: number; // 0 = minor, 1 = major
+  key: number; // 0-11 (C, C#, D, etc.)
+}
+
+// Extended stats for dashboard
+export interface ExtendedStats {
+  // Basic stats (no extra API calls)
+  mainstreamScore: number; // 0-100, based on track popularity
+  avgSongLengthMs: number;
+  genreDiversity: number; // count of unique genres
+  peakListeningHour: number; // 0-23
+  mostActiveDay: string; // "Monday", "Tuesday", etc.
+
+  // Audio feature stats
+  energyScore: number; // 0-100
+  danceabilityScore: number; // 0-100
+  moodScore: number; // 0-100 (valence)
+  acousticScore: number; // 0-100
+  avgTempo: number; // BPM
+  hasAudioFeatures: boolean; // Whether audio features were available
+
+  // Derived/fun stats
+  loyaltyScore: number; // 0-100, overlap between time ranges
+  discoveryRate: number; // percentage of new artists
+  albumExplorerScore: number; // unique albums vs tracks ratio
+  decadeBreakdown: { decade: string; percentage: number }[];
 }
 
 // Dashboard summary types
@@ -47,6 +88,8 @@ export interface TrackSummary {
   albumId: string;
   albumSpotifyUrl: string;
   durationMs: number;
+  popularity: number;
+  releaseDate?: string;
   spotifyUrl: string;
 }
 
@@ -91,6 +134,7 @@ export interface DashboardData {
     uniqueTracks: number;
     topGenre: string | null;
   };
+  extendedStats: ExtendedStats;
   topArtists: {
     shortTerm: ArtistSummary[];
     mediumTerm: ArtistSummary[];

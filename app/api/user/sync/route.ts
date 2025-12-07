@@ -3,8 +3,8 @@ import { auth } from "@/lib/auth";
 import { syncUserData } from "@/lib/spotify-sync";
 import { prisma } from "@/lib/prisma";
 
-// Rate limit: users can only manually sync once per 5 minutes
-const SYNC_COOLDOWN_MS = 5 * 60 * 1000;
+// Rate limit: users can only manually sync once per 30 seconds
+const SYNC_COOLDOWN_MS = 30 * 1000;
 
 export async function POST() {
   const session = await auth();

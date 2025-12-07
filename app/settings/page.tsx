@@ -33,15 +33,15 @@ export default async function SettingsPage() {
   };
 
   return (
-    <main className="max-w-2xl mx-auto px-6 py-8">
+    <div className="max-w-2xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-text-primary">Settings</h1>
+        <h1 className="text-2xl lg:text-3xl font-bold text-text-primary">Settings</h1>
         <p className="text-text-secondary mt-2">
           Manage your profile and privacy settings
         </p>
       </div>
 
       <PrivacySettings initialSettings={initialSettings} />
-    </main>
+    </div>
   );
 }

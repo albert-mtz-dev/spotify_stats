@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { useSidebar } from "./SidebarContext";
 
 interface NavItem {
   href: string;
@@ -67,14 +68,14 @@ const navItems: NavItem[] = [
   },
 ];
 
-export function Sidebar() {
+function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-56 bg-bg-elevated border-r border-border-subtle flex flex-col z-50">
+    <>
       {/* Logo */}
       <div className="p-6">
-        <Link href="/" className="flex items-center gap-2 group">
+        <Link href="/" className="flex items-center gap-2 group" onClick={onNavigate}>
           <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
             <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 20 20">
               <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z" />
@@ -93,7 +94,7 @@ export function Sidebar() {
             const isActive = pathname === item.href;
             return (
               <li key={item.href}>
-                <Link href={item.href}>
+                <Link href={item.href} onClick={onNavigate}>
                   <motion.div
                     className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
                       isActive
@@ -119,6 +120,57 @@ export function Sidebar() {
           Powered by Spotify API
         </p>
       </div>
-    </aside>
+    </>
+  );
+}
+
+export function Sidebar() {
+  const { isOpen, close } = useSidebar();
+
+  return (
+    <>
+      {/* Desktop Sidebar - always visible on lg+ */}
+      <aside className="hidden lg:flex fixed left-0 top-0 h-full w-56 bg-bg-elevated border-r border-border-subtle flex-col z-50">
+        <SidebarContent />
+      </aside>
+
+      {/* Mobile Sidebar - slides in from left */}
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              className="lg:hidden fixed inset-0 bg-black/60 z-50"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={close}
+            />
+
+            {/* Sliding Sidebar */}
+            <motion.aside
+              className="lg:hidden fixed left-0 top-0 h-full w-64 bg-bg-elevated border-r border-border-subtle flex flex-col z-50"
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            >
+              {/* Close button */}
+              <button
+                onClick={close}
+                className="absolute top-4 right-4 p-2 text-text-secondary hover:text-text-primary transition-colors"
+                aria-label="Close menu"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              <SidebarContent onNavigate={close} />
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
