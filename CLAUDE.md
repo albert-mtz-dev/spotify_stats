@@ -144,6 +144,135 @@ tailwind.config.cjs/ts
   - Primary: green, pill-shaped (`rounded-full`).
   - Secondary: outlined or subtle background.
 
+### 2.3 Git Commit Conventions
+
+Follow **Conventional Commits** format for all commits:
+
+```
+<type>(<scope>): <subject>
+
+[optional body]
+
+[optional footer]
+```
+
+**Commit Types:**
+
+| Type | Description |
+|------|-------------|
+| `feat` | New feature or functionality |
+| `fix` | Bug fix |
+| `refactor` | Code change that neither fixes a bug nor adds a feature |
+| `style` | Formatting, missing semicolons, etc. (no code change) |
+| `docs` | Documentation only changes |
+| `test` | Adding or updating tests |
+| `chore` | Build process, dependencies, or tooling changes |
+| `perf` | Performance improvements |
+| `ui` | UI/UX changes (styling, layout, animations) |
+
+**Scopes (optional but recommended):**
+
+- `auth` — Authentication & session management
+- `api` — API routes and backend logic
+- `dashboard` — Dashboard page and components
+- `charts` — Chart components and visualizations
+- `sync` — Spotify data sync functionality
+- `db` — Database schema and queries
+- `ui` — General UI components
+- `motion` — Animations and transitions
+
+**Examples:**
+
+```bash
+feat(charts): add cumulative listening chart component
+
+fix(auth): handle token refresh edge case when session expires
+
+refactor(api): extract sync logic into separate utility
+
+ui(dashboard): improve stat card hover animations
+
+chore(deps): update framer-motion to v11
+```
+
+**Commit Message Rules:**
+
+1. Use imperative mood: "add feature" not "added feature"
+2. Keep subject line under 72 characters
+3. Capitalize the subject line
+4. No period at the end of the subject line
+5. Separate subject from body with a blank line
+6. Use body to explain *what* and *why*, not *how*
+
+### 2.4 Code Comment Conventions
+
+**When to Comment:**
+
+- Complex business logic that isn't self-evident
+- Workarounds or hacks with context on *why*
+- API quirks or Spotify-specific behaviors
+- Performance-critical sections
+- TODO items with context
+
+**When NOT to Comment:**
+
+- Obvious code (e.g., `// increment counter` before `count++`)
+- Code that can be made self-documenting via better naming
+- Commented-out code (delete it; use git history)
+
+**Comment Formats:**
+
+```ts
+// Single-line comment for brief explanations
+
+/**
+ * Multi-line JSDoc for functions, components, and types.
+ * Include @param and @returns for public APIs.
+ */
+
+// TODO: <description> — for planned improvements
+// HACK: <description> — for temporary workarounds (include why)
+// NOTE: <description> — for important context
+```
+
+**Examples:**
+
+```ts
+// Spotify returns genres on artists, not tracks — aggregate from top artists
+const genres = aggregateGenresFromArtists(artists);
+
+/**
+ * Normalizes tempo to 0-100 scale for radar chart display.
+ * Assumes typical BPM range of 60-180.
+ */
+function normalizeTempo(bpm: number): number {
+  return Math.min(100, Math.max(0, ((bpm - 60) / 120) * 100));
+}
+
+// HACK: Force re-render after hydration to fix chart sizing issue
+// See: https://github.com/chartjs/react-chartjs-2/issues/XXX
+useEffect(() => { ... }, []);
+
+// TODO: Add retry logic for rate-limited Spotify API calls
+```
+
+**Component Documentation:**
+
+For complex components, add a brief header comment:
+
+```tsx
+/**
+ * CumulativeListeningChart
+ *
+ * Displays cumulative plays over time (hourly or daily).
+ * Shows running total with percentage tooltip.
+ *
+ * @prop patterns - Array of ListeningPattern from analytics
+ * @prop mode - "hourly" (24h) or "daily" (7 days)
+ */
+export function CumulativeListeningChart({ patterns, mode = "hourly" }: Props) {
+```
+
 ---
 
 ## 3. Motion / Animation Guidelines

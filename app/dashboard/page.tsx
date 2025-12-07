@@ -85,13 +85,13 @@ export default async function DashboardPage() {
     redirect("/");
   }
 
-  // Check if user has seen the visibility notice and get username
+  // Check if user has completed onboarding and get username
   const userSettings = await prisma.user.findUnique({
     where: { id: session.userId },
-    select: { hasSeenVisibilityNotice: true, username: true },
+    select: { hasCompletedOnboarding: true, username: true },
   });
 
-  const showVisibilityNotice = !userSettings?.hasSeenVisibilityNotice;
+  const showVisibilityNotice = !userSettings?.hasCompletedOnboarding;
 
   try {
     // Fetch data from Spotify in parallel

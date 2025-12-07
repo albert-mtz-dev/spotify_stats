@@ -19,7 +19,7 @@ import {
 } from "@/components/charts";
 import { BadgeGrid } from "@/components/ui/BadgeGrid";
 import { TimeRangeSelector } from "@/components/ui/TimeRangeSelector";
-import { ProfileVisibilityNotice } from "@/components/ui/ProfileVisibilityNotice";
+import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
 import { ShareProfileButton } from "@/components/ui/ShareProfileButton";
 import { RefreshButton } from "@/components/ui/RefreshButton";
 import { formatDuration } from "@/lib/analytics";
@@ -71,34 +71,14 @@ export function DashboardContent({ data, showVisibilityNotice = false, userId, u
         ? data.topAlbums.mediumTerm
         : data.topAlbums.longTerm;
 
-  const handleDismissNotice = async () => {
-    await fetch("/api/user/settings", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ hasSeenVisibilityNotice: true }),
-    });
-    setShowNotice(false);
-  };
-
-  const handleGoPrivate = async () => {
-    await fetch("/api/user/settings", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        profileVisibility: "PRIVATE",
-        hasSeenVisibilityNotice: true,
-      }),
-    });
+  const handleOnboardingComplete = () => {
     setShowNotice(false);
   };
 
   return (
     <>
       {showNotice && (
-        <ProfileVisibilityNotice
-          onDismiss={handleDismissNotice}
-          onGoPrivate={handleGoPrivate}
-        />
+        <OnboardingModal onComplete={handleOnboardingComplete} />
       )}
     <motion.div
       className="space-y-8"

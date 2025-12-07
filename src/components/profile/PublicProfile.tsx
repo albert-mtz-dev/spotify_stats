@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { fadeInUp, staggerContainer } from "@/components/motion/presets";
+import { FollowButton } from "@/components/social/FollowButton";
 import type { PublicProfileData } from "@/lib/types";
 import { formatDistanceToNow } from "@/lib/utils";
 
@@ -13,7 +14,15 @@ interface PublicProfileProps {
 }
 
 export function PublicProfile({ profile, isOwner }: PublicProfileProps) {
-  const { user, stats } = profile;
+  const { user, stats, viewerRelationship } = profile;
+
+  // Determine initial follow state
+  const getInitialFollowState = (): "none" | "following" | "pending" | "follow_back" => {
+    if (viewerRelationship?.isFollowing) return "following";
+    if (viewerRelationship?.hasPendingRequest) return "pending";
+    if (viewerRelationship?.isFollowedBy) return "follow_back";
+    return "none";
+  };
 
   return (
     <motion.div
@@ -56,7 +65,7 @@ export function PublicProfile({ profile, isOwner }: PublicProfileProps) {
               Last updated {formatDistanceToNow(new Date(user.lastSyncedAt))}
             </p>
           )}
-          {isOwner && (
+          {isOwner ? (
             <Link
               href="/settings"
               className="inline-flex items-center gap-2 mt-4 text-sm text-accent hover:underline"
@@ -70,6 +79,14 @@ export function PublicProfile({ profile, isOwner }: PublicProfileProps) {
               </svg>
               Edit Profile
             </Link>
+          ) : viewerRelationship && (
+            <div className="mt-4">
+              <FollowButton
+                userId={user.id}
+                initialState={getInitialFollowState()}
+                isFollowedBy={viewerRelationship.isFollowedBy}
+              />
+            </div>
           )}
         </div>
       </motion.div>

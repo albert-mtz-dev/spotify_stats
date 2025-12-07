@@ -1,5 +1,6 @@
 import { UserSearch } from "@/components/discover/UserSearch";
 import { RecentlyJoined } from "@/components/discover/RecentlyJoined";
+import { PendingRequests } from "@/components/discover/PendingRequests";
 
 export const metadata = {
   title: "Discover | Spotify Mirror",
@@ -8,19 +9,19 @@ export const metadata = {
 
 export default function DiscoverPage() {
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="mb-8">
+    <div className="max-w-2xl mx-auto space-y-12">
+      <div>
         <h1 className="text-2xl lg:text-3xl font-bold text-text-primary">Discover</h1>
         <p className="text-text-secondary mt-2">
           Find other users and explore their music taste
         </p>
       </div>
 
+      <PendingRequests />
+
       <UserSearch />
 
-      <div className="mt-12">
-        <RecentlyJoined />
-      </div>
+      <RecentlyJoined />
     </div>
   );
 }

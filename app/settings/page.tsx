@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { PrivacySettings } from "@/components/settings/PrivacySettings";
-import type { UserSettings, ProfileVisibility } from "@/lib/types";
+import type { UserSettings, ProfileVisibility, PrivacySettings as PrivacySettingsType } from "@/lib/types";
 
 export default async function SettingsPage() {
   const session = await auth();
@@ -17,7 +17,16 @@ export default async function SettingsPage() {
       username: true,
       bio: true,
       profileVisibility: true,
-      hasSeenVisibilityNotice: true,
+      hasCompletedOnboarding: true,
+      shareTopArtists: true,
+      shareTopTracks: true,
+      shareGenres: true,
+      shareAudioProfile: true,
+      shareBadges: true,
+      shareListeningStats: true,
+      sharePatterns: true,
+      shareRecentlyPlayed: true,
+      allowComparison: true,
     },
   });
 
@@ -25,11 +34,24 @@ export default async function SettingsPage() {
     redirect("/");
   }
 
+  const privacy: PrivacySettingsType = {
+    shareTopArtists: user.shareTopArtists,
+    shareTopTracks: user.shareTopTracks,
+    shareGenres: user.shareGenres,
+    shareAudioProfile: user.shareAudioProfile,
+    shareBadges: user.shareBadges,
+    shareListeningStats: user.shareListeningStats,
+    sharePatterns: user.sharePatterns,
+    shareRecentlyPlayed: user.shareRecentlyPlayed,
+    allowComparison: user.allowComparison,
+  };
+
   const initialSettings: UserSettings = {
     username: user.username,
     bio: user.bio,
     profileVisibility: user.profileVisibility as ProfileVisibility,
-    hasSeenVisibilityNotice: user.hasSeenVisibilityNotice,
+    hasCompletedOnboarding: user.hasCompletedOnboarding,
+    privacy,
   };
 
   return (
@@ -41,7 +63,10 @@ export default async function SettingsPage() {
         </p>
       </div>
 
-      <PrivacySettings initialSettings={initialSettings} />
+      <PrivacySettings
+        initialSettings={initialSettings}
+        userId={session.userId}
+      />
     </div>
   );
 }

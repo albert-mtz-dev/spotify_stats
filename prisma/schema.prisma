@@ -50,23 +50,77 @@ model User {
   listeningHistory ListeningHistory[]
   badges           UserBadge[]
 
-  // Social fields
-  username             String?           @unique
-  bio                  String?           @db.VarChar(160)
-  profileVisibility    ProfileVisibility @default(PUBLIC)
-  lastSyncedAt         DateTime?
-  hasSeenVisibilityNotice Boolean        @default(false)
+  // Social/Profile fields
+  username                String?           @unique
+  bio                     String?           @db.VarChar(160)
+  profileVisibility       ProfileVisibility @default(PUBLIC)
+  lastSyncedAt            DateTime?
+  hasCompletedOnboarding  Boolean           @default(false)
+
+  // Privacy controls - what to share on profile
+  shareTopArtists     Boolean @default(true)
+  shareTopTracks      Boolean @default(true)
+  shareGenres         Boolean @default(true)
+  shareAudioProfile   Boolean @default(true)
+  shareBadges         Boolean @default(true)
+  shareListeningStats Boolean @default(true)
+  sharePatterns       Boolean @default(false)
+  shareRecentlyPlayed Boolean @default(false)
+  allowComparison     Boolean @default(true)
+
+  // Following relationships
+  followers            Follow[]        @relation("UserFollowers")
+  following            Follow[]        @relation("UserFollowing")
+  followRequestsSent   FollowRequest[] @relation("FollowRequestsSent")
+  followRequestsReceived FollowRequest[] @relation("FollowRequestsReceived")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([name])
   @@index([profileVisibility])
+  @@index([username])
 }
 
 enum ProfileVisibility {
   PUBLIC
+  FOLLOWERS
   PRIVATE
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  follower  User @relation("UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+model FollowRequest {
+  id         String        @id @default(cuid())
+  fromUserId String
+  toUserId   String
+  status     RequestStatus @default(PENDING)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  from User @relation("FollowRequestsSent", fields: [fromUserId], references: [id], onDelete: Cascade)
+  to   User @relation("FollowRequestsReceived", fields: [toUserId], references: [id], onDelete: Cascade)
+
+  @@unique([fromUserId, toUserId])
+  @@index([toUserId, status])
+}
+
+enum RequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }
 
 model VerificationToken {

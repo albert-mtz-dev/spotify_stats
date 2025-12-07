@@ -165,13 +165,26 @@ export const TIME_RANGE_LABELS: Record<TimeRange, string> = {
 };
 
 // Social / Public Profile types
-export type ProfileVisibility = "PUBLIC" | "PRIVATE";
+export type ProfileVisibility = "PUBLIC" | "FOLLOWERS" | "PRIVATE";
+
+export interface PrivacySettings {
+  shareTopArtists: boolean;
+  shareTopTracks: boolean;
+  shareGenres: boolean;
+  shareAudioProfile: boolean;
+  shareBadges: boolean;
+  shareListeningStats: boolean;
+  sharePatterns: boolean;
+  shareRecentlyPlayed: boolean;
+  allowComparison: boolean;
+}
 
 export interface UserSettings {
   username: string | null;
   bio: string | null;
   profileVisibility: ProfileVisibility;
-  hasSeenVisibilityNotice: boolean;
+  hasCompletedOnboarding: boolean;
+  privacy: PrivacySettings;
 }
 
 export interface PublicProfileUser {
@@ -181,6 +194,8 @@ export interface PublicProfileUser {
   image: string | null;
   bio: string | null;
   lastSyncedAt: Date | null;
+  followerCount: number;
+  followingCount: number;
 }
 
 export interface PublicProfileData {
@@ -190,7 +205,33 @@ export interface PublicProfileData {
     topTracks: TrackSummary[];
     topGenres: string[];
     badges: Badge[];
+    listeningStats?: {
+      totalListeningTimeMs: number;
+      uniqueArtists: number;
+      uniqueTracks: number;
+    };
+    extendedStats?: ExtendedStats;
+    listeningPatterns?: ListeningPattern[];
   };
+  // Viewer-specific data
+  viewerRelationship: {
+    isFollowing: boolean;
+    isFollowedBy: boolean;
+    hasPendingRequest: boolean;
+    canView: boolean;
+  };
+  compatibility?: CompatibilityData;
+}
+
+export interface CompatibilityData {
+  score: number; // 0-100
+  sharedArtists: ArtistSummary[];
+  sharedGenres: string[];
+  comparisonStats: {
+    label: string;
+    viewerValue: number;
+    profileValue: number;
+  }[];
 }
 
 export interface UserSearchResult {
@@ -199,4 +240,29 @@ export interface UserSearchResult {
   username: string | null;
   image: string | null;
   bio: string | null;
+  isFollowing?: boolean;
+}
+
+// Follow types
+export type FollowRequestStatus = "PENDING" | "ACCEPTED" | "REJECTED";
+
+export interface FollowRequest {
+  id: string;
+  fromUser: {
+    id: string;
+    name: string;
+    username: string | null;
+    image: string | null;
+  };
+  status: FollowRequestStatus;
+  createdAt: Date;
+}
+
+export interface FollowerUser {
+  id: string;
+  name: string;
+  username: string | null;
+  image: string | null;
+  bio: string | null;
+  followedAt: Date;
 }

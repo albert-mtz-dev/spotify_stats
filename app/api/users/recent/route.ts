@@ -1,16 +1,21 @@
 import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import type { UserSearchResult } from "@/lib/types";
 
 export async function GET(request: Request) {
+  const session = await auth();
+  const viewerId = session?.userId;
+
   const { searchParams } = new URL(request.url);
   const limit = Math.min(parseInt(searchParams.get("limit") || "10"), 20);
 
-  // Get recently joined public users who have synced their data
+  // Get recently joined public users who have synced their data (exclude current user)
   const users = await prisma.user.findMany({
     where: {
       profileVisibility: "PUBLIC",
-      lastSyncedAt: { not: null }, // Only show users with synced data
+      lastSyncedAt: { not: null },
+      ...(viewerId ? { NOT: { id: viewerId } } : {}),
     },
     select: {
       id: true,
