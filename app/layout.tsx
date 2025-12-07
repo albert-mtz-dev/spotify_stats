@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 import { PostHogProvider } from "@/components/providers/PostHogProvider";
 import { PostHogIdentify } from "@/components/providers/PostHogIdentify";
@@ -24,6 +25,7 @@ export default function RootLayout({
             {children}
           </SessionProvider>
         </PostHogProvider>
+        <Analytics />
       </body>
     </html>
   );

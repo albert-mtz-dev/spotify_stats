@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ["http://89884eef8ab4.ngrok-free.app", "https://spotify-stats-jet.vercel.app"],
+  allowedDevOrigins: [
+    "https://89884eef8ab4.ngrok-free.app",
+    "http://89884eef8ab4.ngrok-free.app",
+    "https://spotify-stats-jet.vercel.app",
+  ],
   images: {
     remotePatterns: [
       {
