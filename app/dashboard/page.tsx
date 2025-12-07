@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import {
   getTopArtists,
   getTopTracks,
@@ -109,12 +110,12 @@ export default async function DashboardPage() {
         <p className="text-text-secondary mb-4">
           There was an error connecting to Spotify. Please try again.
         </p>
-        <a
+        <Link
           href="/"
           className="px-4 py-2 bg-accent text-black rounded-full font-medium hover:bg-accent-soft transition-colors"
         >
           Go Back
-        </a>
+        </Link>
       </div>
     );
   }
