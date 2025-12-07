@@ -5,7 +5,7 @@ import { PostHogIdentify } from "@/components/providers/PostHogIdentify";
 import "@/styles/globals.css";
 
 export const metadata: Metadata = {
-  title: "Spotify Mirror - Your Personal Music Profile",
+  title: "Spotify Sats - Your Personal Music Profile",
   description:
     "Discover your music taste with detailed listening stats, top artists, tracks, and personalized insights from your Spotify account.",
 };

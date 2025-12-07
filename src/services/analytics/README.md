@@ -2,6 +2,31 @@
 
 Centralized analytics tracking service for Spotify Mirror using PostHog.
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Structure](#structure)
+- [Quick Start](#quick-start)
+- [Events Tracked](#events-tracked)
+  - [Authentication](#authentication)
+  - [Dashboard](#dashboard)
+  - [Content Interactions](#content-interactions)
+  - [Navigation](#navigation)
+  - [Features](#features)
+  - [Errors](#errors)
+- [React Hooks](#react-hooks)
+  - [useAnalytics()](#useanalytics)
+  - [useTrackSectionView()](#usetracksectionviewsection-timerange)
+  - [useTrackDashboardView()](#usetrackdashboardviewprops)
+  - [useTrackLoadingTime()](#usetrackloadingtime)
+  - [useTrackTimeRangeChange()](#usetracktimerangechangesection)
+  - [useTrackDataRefresh()](#usetrackdatarefresh)
+- [Types](#types)
+- [User Identification](#user-identification)
+- [Custom Events](#custom-events)
+- [User Properties](#user-properties)
+- [Best Practices](#best-practices)
+
 ## Overview
 
 This service provides a type-safe, consistent way to track user interactions throughout the app. It wraps PostHog's SDK with domain-specific methods tailored to Spotify Mirror's features.

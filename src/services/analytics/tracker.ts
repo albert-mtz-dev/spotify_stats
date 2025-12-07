@@ -18,23 +18,31 @@ import type {
  */
 
 class AnalyticsTracker {
+  /**
+   * Wrapper around posthog.capture that logs all events
+   */
+  private capture(eventName: string, properties?: Record<string, unknown>) {
+    console.log(`[Analytics] Sending event: ${eventName}`, properties ?? {});
+    posthog.capture(eventName, properties);
+  }
+
   // ============================================
   // AUTH TRACKING
   // ============================================
 
   trackSignIn(isFirstTime: boolean = false) {
-    posthog.capture(AnalyticsEvents.USER_SIGNED_IN, {
+    this.capture(AnalyticsEvents.USER_SIGNED_IN, {
       method: "spotify",
       is_first_time: isFirstTime,
     });
 
     if (isFirstTime) {
-      posthog.capture(AnalyticsEvents.USER_FIRST_VISIT);
+      this.capture(AnalyticsEvents.USER_FIRST_VISIT);
     }
   }
 
   trackSignOut(sessionDurationSeconds?: number) {
-    posthog.capture(AnalyticsEvents.USER_SIGNED_OUT, {
+    this.capture(AnalyticsEvents.USER_SIGNED_OUT, {
       session_duration_seconds: sessionDurationSeconds,
     });
   }
@@ -49,7 +57,7 @@ class AnalyticsTracker {
     artist_count?: number;
     track_count?: number;
   }) {
-    posthog.capture(AnalyticsEvents.DASHBOARD_VIEWED, props);
+    this.capture(AnalyticsEvents.DASHBOARD_VIEWED, props);
   }
 
   trackDataRefresh(props: {
@@ -57,7 +65,7 @@ class AnalyticsTracker {
     success: boolean;
     duration_ms?: number;
   }) {
-    posthog.capture(AnalyticsEvents.DASHBOARD_DATA_REFRESHED, props);
+    this.capture(AnalyticsEvents.DASHBOARD_DATA_REFRESHED, props);
   }
 
   trackDashboardLoading(phase: "started" | "completed", durationMs?: number) {
@@ -66,7 +74,7 @@ class AnalyticsTracker {
         ? AnalyticsEvents.DASHBOARD_LOADING_STARTED
         : AnalyticsEvents.DASHBOARD_LOADING_COMPLETED;
 
-    posthog.capture(event, {
+    this.capture(event, {
       duration_ms: durationMs,
     });
   }
@@ -76,10 +84,10 @@ class AnalyticsTracker {
   // ============================================
 
   trackArtistClicked(props: Omit<ArtistClickedProperties, "timestamp" | "session_id">) {
-    posthog.capture(AnalyticsEvents.ARTIST_CLICKED, props);
+    this.capture(AnalyticsEvents.ARTIST_CLICKED, props);
 
     if (props.destination === "spotify") {
-      posthog.capture(AnalyticsEvents.ARTIST_SPOTIFY_OPENED, {
+      this.capture(AnalyticsEvents.ARTIST_SPOTIFY_OPENED, {
         artist_id: props.artist_id,
         artist_name: props.artist_name,
       });
@@ -87,10 +95,10 @@ class AnalyticsTracker {
   }
 
   trackTrackClicked(props: Omit<TrackClickedProperties, "timestamp" | "session_id">) {
-    posthog.capture(AnalyticsEvents.TRACK_CLICKED, props);
+    this.capture(AnalyticsEvents.TRACK_CLICKED, props);
 
     if (props.destination === "spotify") {
-      posthog.capture(AnalyticsEvents.TRACK_SPOTIFY_OPENED, {
+      this.capture(AnalyticsEvents.TRACK_SPOTIFY_OPENED, {
         track_id: props.track_id,
         track_name: props.track_name,
       });
@@ -98,14 +106,14 @@ class AnalyticsTracker {
   }
 
   trackGenreClicked(genreName: string, percentage?: number) {
-    posthog.capture(AnalyticsEvents.GENRE_CLICKED, {
+    this.capture(AnalyticsEvents.GENRE_CLICKED, {
       genre_name: genreName,
       percentage,
     });
   }
 
   trackBadgeViewed(badgeId: string, badgeName: string, category?: string) {
-    posthog.capture(AnalyticsEvents.BADGE_VIEWED, {
+    this.capture(AnalyticsEvents.BADGE_VIEWED, {
       badge_id: badgeId,
       badge_name: badgeName,
       badge_category: category,
@@ -113,7 +121,7 @@ class AnalyticsTracker {
   }
 
   trackBadgeDetailsOpened(badgeId: string, badgeName: string) {
-    posthog.capture(AnalyticsEvents.BADGE_DETAILS_OPENED, {
+    this.capture(AnalyticsEvents.BADGE_DETAILS_OPENED, {
       badge_id: badgeId,
       badge_name: badgeName,
     });
@@ -124,7 +132,7 @@ class AnalyticsTracker {
   // ============================================
 
   trackTimeRangeChanged(fromRange: TimeRange, toRange: TimeRange, section: DashboardSection) {
-    posthog.capture(AnalyticsEvents.TIME_RANGE_CHANGED, {
+    this.capture(AnalyticsEvents.TIME_RANGE_CHANGED, {
       from_range: fromRange,
       to_range: toRange,
       section,
@@ -132,14 +140,14 @@ class AnalyticsTracker {
   }
 
   trackSectionViewed(section: DashboardSection, timeRange: TimeRange) {
-    posthog.capture(AnalyticsEvents.SECTION_VIEWED, {
+    this.capture(AnalyticsEvents.SECTION_VIEWED, {
       section,
       time_range: timeRange,
     });
   }
 
   trackSidebarNavClicked(destination: string) {
-    posthog.capture(AnalyticsEvents.SIDEBAR_NAV_CLICKED, {
+    this.capture(AnalyticsEvents.SIDEBAR_NAV_CLICKED, {
       destination,
     });
   }
@@ -149,7 +157,7 @@ class AnalyticsTracker {
   // ============================================
 
   trackShareClicked(contentType: ShareableContent, contentId?: string) {
-    posthog.capture(AnalyticsEvents.SHARE_CLICKED, {
+    this.capture(AnalyticsEvents.SHARE_CLICKED, {
       content_type: contentType,
       content_id: contentId,
     });
@@ -159,7 +167,7 @@ class AnalyticsTracker {
     contentType: ShareableContent,
     shareMethod: "clipboard" | "native" | "twitter" | "other"
   ) {
-    posthog.capture(AnalyticsEvents.SHARE_COMPLETED, {
+    this.capture(AnalyticsEvents.SHARE_COMPLETED, {
       content_type: contentType,
       share_method: shareMethod,
     });
@@ -170,7 +178,7 @@ class AnalyticsTracker {
     interaction: "hover" | "click" | "zoom",
     dataPoint?: string
   ) {
-    posthog.capture(AnalyticsEvents.CHART_INTERACTED, {
+    this.capture(AnalyticsEvents.CHART_INTERACTED, {
       chart_type: chartType,
       interaction,
       data_point: dataPoint,
@@ -178,7 +186,7 @@ class AnalyticsTracker {
   }
 
   trackListeningPatternsViewed() {
-    posthog.capture(AnalyticsEvents.LISTENING_PATTERNS_VIEWED);
+    this.capture(AnalyticsEvents.LISTENING_PATTERNS_VIEWED);
   }
 
   // ============================================
@@ -191,7 +199,7 @@ class AnalyticsTracker {
     errorCode?: string,
     component?: string
   ) {
-    posthog.capture(AnalyticsEvents.ERROR_OCCURRED, {
+    this.capture(AnalyticsEvents.ERROR_OCCURRED, {
       category,
       error_message: errorMessage,
       error_code: errorCode,
@@ -200,7 +208,7 @@ class AnalyticsTracker {
   }
 
   trackSyncFailed(errorMessage: string, errorCode?: string) {
-    posthog.capture(AnalyticsEvents.SYNC_FAILED, {
+    this.capture(AnalyticsEvents.SYNC_FAILED, {
       error_message: errorMessage,
       error_code: errorCode,
     });
@@ -210,7 +218,7 @@ class AnalyticsTracker {
   }
 
   trackApiError(endpoint: string, statusCode: number, errorMessage: string) {
-    posthog.capture(AnalyticsEvents.API_ERROR, {
+    this.capture(AnalyticsEvents.API_ERROR, {
       endpoint,
       status_code: statusCode,
       error_message: errorMessage,
@@ -228,7 +236,7 @@ class AnalyticsTracker {
    * Track a custom event not covered by the predefined methods
    */
   trackCustom(eventName: string, properties?: Record<string, unknown>) {
-    posthog.capture(eventName, properties);
+    this.capture(eventName, properties);
   }
 
   /**

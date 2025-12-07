@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { fadeInUp, staggerContainer } from "@/components/motion/presets";
+import posthog from "posthog-js";
 
 const features = [
   {
@@ -160,6 +161,23 @@ export default function Home() {
             </motion.div>
           ))}
         </motion.div>
+
+        {/* Debug PostHog - Remove after testing */}
+        <div className="mt-10 text-center">
+          <button
+            onClick={() => {
+              console.log("PostHog instance:", posthog);
+              console.log("PostHog loaded:", posthog.__loaded);
+              console.log("Sending test event...");
+              posthog.capture("test_button_clicked", { test: true, timestamp: new Date().toISOString() });
+              console.log("Event sent!");
+              alert("Check console and PostHog dashboard for 'test_button_clicked' event");
+            }}
+            className="px-4 py-2 bg-red-500 text-white rounded-lg text-sm"
+          >
+            Test PostHog Event
+          </button>
+        </div>
 
         {/* Footer */}
         <motion.footer
