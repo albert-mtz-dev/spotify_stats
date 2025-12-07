@@ -1,0 +1,21 @@
+:root {
+  /* Background colors */
+  --color-bg-main: #121212;
+  --color-bg-elevated: #181818;
+  --color-bg-highlight: #1f2933;
+
+  /* Accent colors */
+  --color-accent: #1db954;
+  --color-accent-soft: #1ed760;
+
+  /* Text colors */
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #b3b3b3;
+
+  /* Border colors */
+  --color-border-subtle: #282828;
+
+  /* Gradients */
+  --gradient-card: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+  --gradient-hero: radial-gradient(ellipse at top, rgba(29, 185, 84, 0.15) 0%, transparent 50%);
+}
