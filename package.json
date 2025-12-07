@@ -17,11 +17,16 @@
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.4",
+    "@prisma/adapter-pg": "^6.19.0",
     "@prisma/client": "^6.1.0",
     "chart.js": "^4.4.7",
+    "dotenv": "^17.2.3",
     "framer-motion": "^11.15.0",
     "next": "^15.1.0",
     "next-auth": "^5.0.0-beta.25",
+    "pg": "^8.16.3",
+    "posthog-js": "^1.302.2",
+    "posthog-node": "^5.17.2",
     "react": "^19.0.0",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^19.0.0"
@@ -29,6 +34,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",
     "@types/node": "^22.10.2",
+    "@types/pg": "^8.15.6",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.2",
     "autoprefixer": "^10.4.20",

@@ -110,5 +110,10 @@ export function assignBadges(context: BadgeContext): Badge[] {
 }
 
 export function getAllBadgeDefinitions(): Omit<BadgeDefinition, "check">[] {
-  return BADGE_DEFINITIONS.map(({ check: _check, ...rest }) => rest);
+  return BADGE_DEFINITIONS.map((def) => ({
+    id: def.id,
+    name: def.name,
+    description: def.description,
+    icon: def.icon,
+  }));
 }
