@@ -20,8 +20,8 @@ export async function GET(request: Request) {
     console.log("Starting batch sync...");
     const startTime = Date.now();
 
-    // Sync users who haven't synced in 12 hours
-    const result = await runBatchSync(12);
+    // Sync users who haven't synced in 24 hours (cron runs daily on Hobby plan)
+    const result = await runBatchSync(24);
 
     const duration = Date.now() - startTime;
 
