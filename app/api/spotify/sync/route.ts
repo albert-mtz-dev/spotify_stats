@@ -7,7 +7,6 @@ import {
   getRecentlyPlayed,
 } from "@/lib/spotify";
 import type { TimeRange } from "@/lib/types";
-import type { Prisma } from "@prisma/client";
 
 const TIME_RANGES: TimeRange[] = ["short_term", "medium_term", "long_term"];
 
@@ -37,7 +36,7 @@ export async function POST() {
           id: `${user.id}-artists-${timeRange}`,
         },
         update: {
-          data: artists as unknown as Prisma.JsonArray,
+          data: JSON.parse(JSON.stringify(artists)),
           createdAt: new Date(),
         },
         create: {
@@ -45,7 +44,7 @@ export async function POST() {
           userId: user.id,
           timeRange,
           type: "artists",
-          data: artists as unknown as Prisma.JsonArray,
+          data: JSON.parse(JSON.stringify(artists)),
         },
       });
     }
@@ -59,7 +58,7 @@ export async function POST() {
           id: `${user.id}-tracks-${timeRange}`,
         },
         update: {
-          data: tracks as unknown as Prisma.JsonArray,
+          data: JSON.parse(JSON.stringify(tracks)),
           createdAt: new Date(),
         },
         create: {
@@ -67,7 +66,7 @@ export async function POST() {
           userId: user.id,
           timeRange,
           type: "tracks",
-          data: tracks as unknown as Prisma.JsonArray,
+          data: JSON.parse(JSON.stringify(tracks)),
         },
       });
     }
