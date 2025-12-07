@@ -119,3 +119,40 @@ export const TIME_RANGE_LABELS: Record<TimeRange, string> = {
   medium_term: "Last 6 Months",
   long_term: "All Time",
 };
+
+// Social / Public Profile types
+export type ProfileVisibility = "PUBLIC" | "PRIVATE";
+
+export interface UserSettings {
+  username: string | null;
+  bio: string | null;
+  profileVisibility: ProfileVisibility;
+  hasSeenVisibilityNotice: boolean;
+}
+
+export interface PublicProfileUser {
+  id: string;
+  name: string;
+  username: string | null;
+  image: string | null;
+  bio: string | null;
+  lastSyncedAt: Date | null;
+}
+
+export interface PublicProfileData {
+  user: PublicProfileUser;
+  stats: {
+    topArtists: ArtistSummary[];
+    topTracks: TrackSummary[];
+    topGenres: string[];
+    badges: Badge[];
+  };
+}
+
+export interface UserSearchResult {
+  id: string;
+  name: string;
+  username: string | null;
+  image: string | null;
+  bio: string | null;
+}

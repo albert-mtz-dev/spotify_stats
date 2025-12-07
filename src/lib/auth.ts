@@ -20,18 +20,23 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, account }) {
+    async jwt({ token, account, user }) {
       // Persist the OAuth access_token and refresh_token to the token
       if (account) {
         token.accessToken = account.access_token;
         token.refreshToken = account.refresh_token;
         token.expiresAt = account.expires_at;
       }
+      // Store user ID from initial sign in
+      if (user) {
+        token.userId = user.id;
+      }
       return token;
     },
     async session({ session, token }) {
-      // Send accessToken to the client for server components
+      // Send accessToken and userId to the client for server components
       session.accessToken = token.accessToken as string;
+      session.userId = token.userId as string;
       return session;
     },
   },
@@ -47,5 +52,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 declare module "next-auth" {
   interface Session {
     accessToken?: string;
+    userId?: string;
   }
 }

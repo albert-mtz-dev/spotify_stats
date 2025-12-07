@@ -96,6 +96,12 @@ export async function POST() {
       });
     }
 
+    // Update lastSyncedAt on user
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastSyncedAt: new Date() },
+    });
+
     return NextResponse.json({
       success: true,
       syncedAt: new Date().toISOString(),

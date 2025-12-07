@@ -50,8 +50,23 @@ model User {
   listeningHistory ListeningHistory[]
   badges           UserBadge[]
 
+  // Social fields
+  username             String?           @unique
+  bio                  String?           @db.VarChar(160)
+  profileVisibility    ProfileVisibility @default(PUBLIC)
+  lastSyncedAt         DateTime?
+  hasSeenVisibilityNotice Boolean        @default(false)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([name])
+  @@index([profileVisibility])
+}
+
+enum ProfileVisibility {
+  PUBLIC
+  PRIVATE
 }
 
 model VerificationToken {

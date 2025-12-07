@@ -11,15 +11,22 @@ import { GenreChart } from "@/components/charts/GenreChart";
 import { ActivityHeatmap } from "@/components/charts/ActivityHeatmap";
 import { BadgeGrid } from "@/components/ui/BadgeGrid";
 import { TimeRangeSelector } from "@/components/ui/TimeRangeSelector";
+import { ProfileVisibilityNotice } from "@/components/ui/ProfileVisibilityNotice";
+import { ShareProfileButton } from "@/components/ui/ShareProfileButton";
+import { RefreshButton } from "@/components/ui/RefreshButton";
 import { formatDuration } from "@/lib/analytics";
 import type { DashboardData, TimeRange } from "@/lib/types";
 
 interface Props {
   data: DashboardData;
+  showVisibilityNotice?: boolean;
+  userId?: string;
+  username?: string | null;
 }
 
-export function DashboardContent({ data }: Props) {
+export function DashboardContent({ data, showVisibilityNotice = false, userId, username }: Props) {
   const [timeRange, setTimeRange] = useState<TimeRange>("medium_term");
+  const [showNotice, setShowNotice] = useState(showVisibilityNotice);
 
   const artists =
     timeRange === "short_term"
@@ -42,7 +49,35 @@ export function DashboardContent({ data }: Props) {
         ? data.topAlbums.mediumTerm
         : data.topAlbums.longTerm;
 
+  const handleDismissNotice = async () => {
+    await fetch("/api/user/settings", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ hasSeenVisibilityNotice: true }),
+    });
+    setShowNotice(false);
+  };
+
+  const handleGoPrivate = async () => {
+    await fetch("/api/user/settings", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        profileVisibility: "PRIVATE",
+        hasSeenVisibilityNotice: true,
+      }),
+    });
+    setShowNotice(false);
+  };
+
   return (
+    <>
+      {showNotice && (
+        <ProfileVisibilityNotice
+          onDismiss={handleDismissNotice}
+          onGoPrivate={handleGoPrivate}
+        />
+      )}
     <motion.div
       className="space-y-8"
       variants={staggerContainer}
@@ -51,13 +86,21 @@ export function DashboardContent({ data }: Props) {
     >
       {/* Welcome Section */}
       <motion.div variants={fadeInUp} transition={{ duration: 0.2 }}>
-        <h2 className="text-3xl font-bold text-text-primary mb-2">
-          Welcome back, {data.user.name?.split(" ")[0]}!
-        </h2>
-        <p className="text-text-secondary">
-          Here&apos;s your personalized music profile based on your Spotify
-          listening history.
-        </p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 className="text-3xl font-bold text-text-primary mb-2">
+              Welcome back, {data.user.name?.split(" ")[0]}!
+            </h2>
+            <p className="text-text-secondary">
+              Here&apos;s your personalized music profile based on your Spotify
+              listening history.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <RefreshButton />
+            {userId && <ShareProfileButton userId={userId} username={username} />}
+          </div>
+        </div>
       </motion.div>
 
       {/* Stats Row */}
@@ -165,5 +208,6 @@ export function DashboardContent({ data }: Props) {
         </motion.section>
       )}
     </motion.div>
+    </>
   );
 }

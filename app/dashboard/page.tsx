@@ -13,15 +13,83 @@ import {
   assignBadges,
   extractTopAlbumsFromTracks,
 } from "@/lib/analytics";
+import { prisma } from "@/lib/prisma";
 import { DashboardContent } from "@/components/dashboard/DashboardContent";
-import type { DashboardData } from "@/lib/types";
+import type { DashboardData, ArtistSummary, TrackSummary } from "@/lib/types";
+
+// Save data to database for public profiles
+async function saveToDatabase(
+  userId: string,
+  data: {
+    shortTermArtists: ArtistSummary[];
+    mediumTermArtists: ArtistSummary[];
+    longTermArtists: ArtistSummary[];
+    shortTermTracks: TrackSummary[];
+    mediumTermTracks: TrackSummary[];
+    longTermTracks: TrackSummary[];
+  }
+) {
+  const timeRanges = ["short_term", "medium_term", "long_term"] as const;
+  const artistData = [data.shortTermArtists, data.mediumTermArtists, data.longTermArtists];
+  const trackData = [data.shortTermTracks, data.mediumTermTracks, data.longTermTracks];
+
+  // Save artists
+  for (let i = 0; i < timeRanges.length; i++) {
+    await prisma.spotifySnapshot.upsert({
+      where: { id: `${userId}-artists-${timeRanges[i]}` },
+      update: {
+        data: JSON.parse(JSON.stringify(artistData[i])),
+        createdAt: new Date(),
+      },
+      create: {
+        id: `${userId}-artists-${timeRanges[i]}`,
+        userId,
+        timeRange: timeRanges[i],
+        type: "artists",
+        data: JSON.parse(JSON.stringify(artistData[i])),
+      },
+    });
+  }
+
+  // Save tracks
+  for (let i = 0; i < timeRanges.length; i++) {
+    await prisma.spotifySnapshot.upsert({
+      where: { id: `${userId}-tracks-${timeRanges[i]}` },
+      update: {
+        data: JSON.parse(JSON.stringify(trackData[i])),
+        createdAt: new Date(),
+      },
+      create: {
+        id: `${userId}-tracks-${timeRanges[i]}`,
+        userId,
+        timeRange: timeRanges[i],
+        type: "tracks",
+        data: JSON.parse(JSON.stringify(trackData[i])),
+      },
+    });
+  }
+
+  // Update lastSyncedAt
+  await prisma.user.update({
+    where: { id: userId },
+    data: { lastSyncedAt: new Date() },
+  });
+}
 
 export default async function DashboardPage() {
   const session = await auth();
 
-  if (!session?.accessToken) {
+  if (!session?.accessToken || !session?.userId) {
     redirect("/");
   }
+
+  // Check if user has seen the visibility notice and get username
+  const userSettings = await prisma.user.findUnique({
+    where: { id: session.userId },
+    select: { hasSeenVisibilityNotice: true, username: true },
+  });
+
+  const showVisibilityNotice = !userSettings?.hasSeenVisibilityNotice;
 
   try {
     // Fetch data from Spotify in parallel
@@ -47,6 +115,16 @@ export default async function DashboardPage() {
     const shortTermAlbums = extractTopAlbumsFromTracks(shortTermTracks);
     const mediumTermAlbums = extractTopAlbumsFromTracks(mediumTermTracks);
     const longTermAlbums = extractTopAlbumsFromTracks(longTermTracks);
+
+    // Auto-sync: Save data to database for public profiles (non-blocking)
+    saveToDatabase(session.userId, {
+      shortTermArtists,
+      mediumTermArtists,
+      longTermArtists,
+      shortTermTracks,
+      mediumTermTracks,
+      longTermTracks,
+    }).catch((err) => console.error("Auto-sync error:", err));
 
     // Compute analytics
     const genres = aggregateGenresFromArtists(mediumTermArtists);
@@ -99,7 +177,14 @@ export default async function DashboardPage() {
       lastSyncedAt: new Date(),
     };
 
-    return <DashboardContent data={dashboardData} />;
+    return (
+      <DashboardContent
+        data={dashboardData}
+        showVisibilityNotice={showVisibilityNotice}
+        userId={session.userId}
+        username={userSettings?.username}
+      />
+    );
   } catch (error) {
     console.error("Error fetching Spotify data:", error);
     return (
